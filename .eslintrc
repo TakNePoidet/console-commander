@@ -1,0 +1,33 @@
+{
+	"extends": ["taknepoidet", "plugin:jsdoc/recommended"],
+	"rules": {
+		"quote-props": ["error", "as-needed"],
+		"@typescript-eslint/ban-ts-comment": 0,
+		"class-methods-use-this": "off",
+		"jsdoc/require-jsdoc": [
+			1,
+			{
+				"require": {
+					"FunctionDeclaration": true,
+					"MethodDefinition": true,
+					"ClassDeclaration": true,
+					"ArrowFunctionExpression": false
+				}
+			}
+		],
+		"jsdoc/require-returns-description": 0
+	},
+	"plugins": ["jsdoc"],
+	"overrides": [
+		{
+			"files": ["*.ts", "*.tsx"],
+			"rules": {
+				"no-useless-constructor": 0,
+				"no-empty-function": 0,
+				"no-useless-escape": 0,
+				"no-param-reassign": 0,
+				"no-underscore-dangle": ["error", { "allowAfterThis": true }]
+			}
+		}
+	]
+}
