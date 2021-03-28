@@ -3,29 +3,24 @@ const { Commander, Command } = require('../dist/index');
 /**
  *
  */
-class Write extends Command {
-	/**
-	 *
-	 */
-	get signature() {
-		return 'write {--loop} {--U|users*}';
+class TestCommand extends Command {
+	signature = 'test-command {--list=}';
+
+	get description() {
+		return 'Тестовое описание';
 	}
 
-	/**
-	 *
-	 */
-	async handle() {
+	handle() {
 		return new Promise((resolve) => {
 			setTimeout(() => {
-				this.error('asdsads');
-				resolve({ response: 'ok' });
-			}, 1000);
+				resolve(this.options);
+			}, this.options.timeout * 1000);
 		});
 	}
 }
 const commander = new Commander();
 
-commander.registration(Write);
+commander.registration(TestCommand);
 commander
 	.start()
 	.then((result) => {
