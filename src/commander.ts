@@ -54,7 +54,7 @@ export class Commander {
 					}
 				];
 
-				const mainCommand: CommandLineOptions & { name?: string } = commandLineArgs(mainDefinitions, {
+				const mainCommand: CommandLineOptions & { name?: string; } = commandLineArgs(mainDefinitions, {
 					stopAtFirstUnknown: true
 				});
 
@@ -62,11 +62,14 @@ export class Commander {
 					switch (true) {
 						case mainCommand.list:
 							this.printListCommand();
-							return;
+							resolve();
+							break;
 						case mainCommand.help:
 							this.help();
-							return;
+							resolve();
+							break;
 						default:
+
 							break;
 					}
 					reject(new Error('Enter the name of the command'));
@@ -89,7 +92,8 @@ export class Commander {
 				switch (true) {
 					case command.options.help:
 						command.help();
-						return;
+						resolve();
+						break;
 					default:
 						Promise.resolve(command.handle())
 							.then((result: any) => {
