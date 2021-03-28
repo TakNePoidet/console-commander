@@ -9,21 +9,7 @@ const externals = require('rollup-plugin-node-externals');
 const babel = require('rollup-plugin-babel');
 
 if (!isDev) {
-	plugins.push(
-		terser({
-			compress: {
-				inline: true,
-				passes: 1,
-				keep_fargs: false,
-				drop_console: true
-			},
-			output: {
-				beautify: false
-				// comments: false
-			},
-			mangle: true
-		})
-	);
+	plugins.push(terser());
 } else {
 	plugins.push(sourceMaps());
 }
