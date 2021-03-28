@@ -37,7 +37,6 @@
 		"colors": "^1.4.0",
 		"command-line-args": "^5.1.1",
 		"command-line-usage": "^6.1.1",
-		"deepmerge": "^4.2.2",
 		"table": "^6.0.7"
 	},
 	"devDependencies": {
