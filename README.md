@@ -1,6 +1,8 @@
+<!-- @format -->
+
 # console-commander
 
-Simple Console Command Manager
+Simple Console Command manager
 
 ## Installation
 
@@ -19,19 +21,19 @@ $ yarn add -D console-commander
 const { Commander, Command } = require('console-commander');
 // Creating a command handler class
 class TestCommand extends Command {
-	signature = 'test-command {--T|<number>timeout=1 : timeout in seconds}';
+  signature = 'test-command {--T|<number>timeout=1 : timeout in seconds}';
 
-	get description() {
-		return 'This is the command description';
-	}
+  get description() {
+    return 'This is the command description';
+  }
 
-	handle() {
-		return new Promise((resolve) => {
-			setTimeout(() => {
-				resolve({ response: 'ok' });
-			}, this.options.timeout * 1000);
-		});
-	}
+  handle() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ response: 'ok' });
+      }, this.options.timeout * 1000);
+    });
+  }
 }
 
 // Initializing the Commander
@@ -42,11 +44,11 @@ commander.registration(TestCommand);
 
 // start
 commander
-	.start()
-	.then((result) => {
-		console.log(result);
-	})
-	.catch((error) => console.error(error.message));
+  .start()
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((error) => console.error(error.message));
 ```
 
 ```bash
@@ -59,7 +61,7 @@ All options provided by the user are enclosed in curly brackets and prefixed wit
 
 ```javascript
 class TestCommand extends Command {
-	signature = 'test-command {--verbose}';
+  signature = 'test-command {--verbose}';
 }
 ```
 
@@ -69,7 +71,7 @@ To assign a shortcut when defining an option, you may specify it before the opti
 
 ```javascript
 class TestCommand extends Command {
-	signature = 'test-command {--T|timeout}';
+  signature = 'test-command {--T|timeout}';
 }
 ```
 
@@ -79,7 +81,7 @@ You may assign descriptions to input options by separating the option name from 
 
 ```javascript
 class TestCommand extends Command {
-	signature = 'test-command {--timeout:timeout in seconds}';
+  signature = 'test-command {--timeout:timeout in seconds}';
 }
 ```
 
@@ -89,7 +91,7 @@ To describe the type, write it `<typing>` ahead with the option name
 
 ```javascript
 class TestCommand extends Command {
-	signature = 'test-command {--<number>timeout}';
+  signature = 'test-command {--<number>timeout}';
 }
 ```
 
@@ -103,7 +105,7 @@ To wait for multiple options, press `*` after the option name
 
 ```javascript
 class TestCommand extends Command {
-	signature = 'test-command {--src*}';
+  signature = 'test-command {--src*}';
 }
 ```
 
@@ -113,7 +115,7 @@ To define a default value, terminate the name with `=` and add the value
 
 ```javascript
 class TestCommand extends Command {
-	signature = 'test-command {--src=one.js}';
+  signature = 'test-command {--src=one.js}';
 }
 ```
 
@@ -121,7 +123,7 @@ For multiple default values, you must complete `*=`
 
 ```javascript
 class TestCommand extends Command {
-	signature = 'test-command {--src*=one.js,two.js}';
+  signature = 'test-command {--src*=one.js,two.js}';
 }
 ```
 
