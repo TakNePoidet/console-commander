@@ -113,6 +113,6 @@ export abstract class Command extends Console {
 			}
 		];
 
-		console.log(commandLineUsage(sections));
+		this.print(commandLineUsage(sections));
 	}
 }

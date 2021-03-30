@@ -1,5 +1,4 @@
-const { Commander, Command } = require('../dist/index');
-
+const { Commander, Command, Console } = require('../dist/index');
 /**
  *
  */
@@ -24,6 +23,13 @@ commander.registration(TestCommand);
 commander
 	.start()
 	.then((result) => {
-		console.log(result);
+		// Console
+		// Console
+		Console.print(result);
 	})
-	.catch((error) => console.error(error.message));
+	.catch((error) => {
+		console.log(error);
+		// Console.print(error.message)
+	});
+
+// Console.ask()

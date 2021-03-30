@@ -1,6 +1,6 @@
 import commandLineArgs, { CommandLineOptions, OptionDefinition } from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
-import { table } from 'table';
+import { Console, ConsoleOutput } from './console';
 import { CommandConstructor, CommandDescription, CommandPrivateApi } from './interface';
 import { ParserSignature } from './parser';
 /**
@@ -54,7 +54,7 @@ export class Commander {
 					}
 				];
 
-				const mainCommand: CommandLineOptions & { name?: string; } = commandLineArgs(mainDefinitions, {
+				const mainCommand: CommandLineOptions & { name?: string } = commandLineArgs(mainDefinitions, {
 					stopAtFirstUnknown: true
 				});
 
@@ -69,7 +69,6 @@ export class Commander {
 							resolve();
 							break;
 						default:
-
 							break;
 					}
 					reject(new Error('Enter the name of the command'));
@@ -129,7 +128,7 @@ export class Commander {
 	private printListCommand(): void {
 		const data = this.getListCommand().map(({ name, summary }, index) => [index + 1, name, summary]);
 
-		console.log(table(data));
+		Console.table(data);
 	}
 
 	/**
@@ -164,6 +163,6 @@ export class Commander {
 			}
 		];
 
-		console.log(commandLineUsage(sections));
+		ConsoleOutput.print(commandLineUsage(sections));
 	}
 }

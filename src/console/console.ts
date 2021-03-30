@@ -1,69 +1,52 @@
-import colors from 'colors';
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import {
+	print, info, warn, error, table
+} from './output';
+
 
 /**
- * Класс реализующий работу с консолью
  *
- * @class
  */
-export class Console {
-	/**
-	 * Вывод информации в консоль
-	 *
-	 * @param {string} value Выводимое значение
-	 * @returns {this} возвращает инстанс реализующего класса
-	 */
-	public info(value: string): this {
-		process.stdout.write(colors.blue(value));
-		this.newLine();
-		return this;
-	}
-
-	/**
-	 * Вывод ошибки в консоль
-	 *
-	 * @param {string} value Выводимое значение
-	 * @returns {this} возвращает инстанс реализующего класса
-	 */
-	public error(value: string): this {
-		process.stdout.write(colors.red(value));
-		this.newLine();
-		return this;
-	}
-
-	/**
-	 * Вывод предупреждения в консоль
-	 *
-	 * @param {string} value Выводимое значение
-	 * @returns {this} возвращает инстанс реализующего класса
-	 */
-	public warn(value: string): this {
-		process.stdout.write(colors.yellow(value));
-		this.newLine();
-		return this;
-	}
-
-	/**
-	 * Вывод значения с новой строки и без оформления
-	 *
-	 * @param {string} value Выводимое значение
-	 * @returns {this} возвращает инстанс реализующего класса
-	 */
-	public line(value: string): this {
-		process.stdout.write(`${value}`);
-		this.newLine();
-		return this;
-	}
-
-	/**
-	 * Вывод пустых строк
-	 *
-	 * @param {number} [count=1] количество новых строк
-	 * @returns {this} возвращает инстанс себя
-	 */
-	public newLine(count = 1): this {
-		for (let index = 0; index < count; index = +1) {
-			process.stdout.write(`\n`);
-		}
-		return this;
-	}
+class ConsoleBase {
+	static methods = {
+		print, info, warn, error, table
+	};
 }
+
+const handler = {
+	get<T extends ConsoleBase>(target: T, name) {
+		if (Object.prototype.hasOwnProperty.call(target, name)) {
+			return Reflect.get(target, name);
+		}
+		if (Object.prototype.hasOwnProperty.call(Reflect.get(target, 'methods'), name)) {
+			return Reflect.get(target, 'methods').name.bind(target);
+		}
+		return undefined;
+	}
+};
+
+export interface ConsoleOutputInterface {
+	info(value: string): void;
+	warn(value: string): void;
+	error(value: string): void;
+	table(value: Array<Array<any>>): void;
+	print(value: any);
+}
+
+type Constrictor<T> = { new(): T; };
+
+/**
+ * @param className
+ */
+export function handlerProxy(className: Constrictor<ConsoleBase>): Constrictor<ConsoleOutputInterface> {
+	return new Proxy(className, {
+		construct(Target: Constrictor<ConsoleBase>) {
+			return new Proxy(new Target(), handler);
+		}
+	})();
+}
+
+
+export const Console = handlerProxy(ConsoleBase);
