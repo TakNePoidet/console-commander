@@ -1,4 +1,4 @@
-import { extractDescriptionOption } from '../src/parser/signature/extract-description-option';
+import { extractDescriptionOption } from '../src/parser/extract-description-option';
 
 test('Получение описания опции', () => {
 	const token = 'timeout : таймаут в секундах';

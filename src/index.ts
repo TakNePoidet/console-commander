@@ -1,5 +1,2 @@
-import { Manager } from './manager';
-
-const manager = new Manager();
-
-manager.use().use();
+export { Commander } from './commander';
+export { Command } from './command';

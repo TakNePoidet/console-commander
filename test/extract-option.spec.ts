@@ -1,10 +1,10 @@
-import { extractOption } from '../src/parser/signature/extract-option';
-import { extractTypeOption } from '../src/parser/signature/extract-type-option';
-import { extractDescriptionOption } from '../src/parser/signature/extract-description-option';
+import { extractOption } from '../src/parser/extract-option';
+import { extractTypeOption } from '../src/parser/extract-type-option';
+import { extractDescriptionOption } from '../src/parser/extract-description-option';
 import { createError } from '../src/error';
 
-jest.mock('../src/parser/signature/extract-type-option');
-jest.mock('../src/parser/signature/extract-description-option');
+jest.mock('../src/parser/extract-type-option');
+jest.mock('../src/parser/extract-description-option');
 jest.mock('../src/error');
 
 const mockExtractTypeOption = <jest.MockedFunction<typeof extractTypeOption>>extractTypeOption;
@@ -131,11 +131,22 @@ describe('Парсинг опции', () => {
 
 		mockExtractDescriptionOption.mockReturnValueOnce(['<number>id=1', '']);
 		mockExtractTypeOption.mockReturnValueOnce(['id=1', Number]);
-		expect(extractOption('<number>id')).toEqual({
+		expect(extractOption('<number>id=1')).toEqual({
 			name: 'id',
 			defaultValue: 1,
 			multiple: false,
 			type: Number,
+			description: ''
+		});
+
+		mockExtractDescriptionOption.mockReturnValueOnce(['timeout=1', '']);
+		mockExtractTypeOption.mockReturnValueOnce(['timeout=1', Boolean]);
+
+		expect(extractOption('timeout=1')).toEqual({
+			name: 'timeout',
+			defaultValue: '1',
+			multiple: false,
+			type: String,
 			description: ''
 		});
 	});
@@ -148,6 +159,16 @@ describe('Парсинг опции', () => {
 			defaultValue: ['1'],
 			multiple: true,
 			type: String,
+			description: ''
+		});
+
+		mockExtractDescriptionOption.mockReturnValueOnce(['id*=false', '']);
+		mockExtractTypeOption.mockReturnValueOnce(['id*=false', Boolean]);
+		expect(extractOption('id*=false')).toEqual({
+			name: 'id',
+			defaultValue: [false],
+			multiple: true,
+			type: Boolean,
 			description: ''
 		});
 	});

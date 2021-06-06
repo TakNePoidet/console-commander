@@ -1,6 +1,6 @@
 import commandLineArgs, { CommandLineOptions } from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
-import { Definition } from '../types';
+import { Definition, EmptyObject } from '../types';
 
 export interface CommandOption extends Record<string, any> {
 	help: boolean;
@@ -9,13 +9,17 @@ export interface CommandOption extends Record<string, any> {
 export interface CommandPrivate {
 	signature: string;
 	commandName: string;
+	description: string;
 	definitions: Definition[];
-	handle: Promise<void>;
+	handle: () => Promise<void>;
+	parseOption: (globalOption: CommandLineOptions, argv: string[]) => void;
+	options: Record<string, any>;
+	help: () => void;
 }
 
 export type CommandConstructor<C extends Command = Command> = { new (): C };
 
-export abstract class Command<O = CommandOption> {
+export abstract class Command<O extends EmptyObject = EmptyObject> {
 	/**
 	 * Имя команды
 	 *
@@ -52,7 +56,7 @@ export abstract class Command<O = CommandOption> {
 	 * @type {CommandOption}
 	 * @protected
 	 */
-	protected options: O;
+	protected options: O & CommandOption;
 
 	/**
 	 * Основная функция команды
@@ -62,7 +66,7 @@ export abstract class Command<O = CommandOption> {
 	public abstract handle(): Promise<void> | void;
 
 	/**
-	 * Парсиг опкий командной строки
+	 * Парсиг опций командной строки
 	 *
 	 * @param {CommandLineOptions} globalOption - глобальные опции
 	 * @param {string[]} argv - параметры командной
@@ -85,9 +89,15 @@ export abstract class Command<O = CommandOption> {
 		this.options = {
 			...commandLineArgs(optionDefinition, { argv, stopAtFirstUnknown: false }),
 			...globalOption
-		} as O;
+		} as O & CommandOption;
 	}
 
+	/**
+	 * Формирование справки
+	 *
+	 * @returns {string} - текст справки
+	 * @protected
+	 */
 	protected help(): string {
 		const optionList = this.definitions.map((definition) => {
 			const { name, alias, type, description } = definition;
@@ -105,15 +115,15 @@ export abstract class Command<O = CommandOption> {
 				content: this.description
 			},
 			{
-				header: 'Synopsis',
+				header: 'Пример',
 				content: `$ app ${this.commandName} <options>`
 			},
 			{
-				header: 'List of available options for the command',
+				header: 'Список опций команды',
 				optionList: [
 					{
 						name: 'help',
-						description: 'Getting help from the command',
+						description: 'Вывод справки',
 						alias: 'H',
 						type: Boolean
 					},

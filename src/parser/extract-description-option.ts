@@ -1,4 +1,4 @@
-import { createError } from '../../error';
+import { createError } from '../error';
 
 /**
  * Получение описания опции

@@ -1,4 +1,4 @@
-import { createError } from '../../error';
+import { createError } from '../error';
 
 /**
  * Получение типа опции
@@ -19,9 +19,10 @@ export function extractTypeOption(
 	let newToken: string;
 
 	if (regexp.exec(token)) {
-		const { type } = regexp.exec(token).groups;
+		const type = regexp.exec(token).groups.type ?? 'boolean';
 
 		newToken = token.replace(`<${type}>`, '');
+
 		switch (type.toLocaleLowerCase()) {
 			case 'number':
 				return [newToken, Number];

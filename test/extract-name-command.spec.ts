@@ -1,4 +1,4 @@
-import { extractNameCommand } from '../src/parser/signature/extract-name-command';
+import { extractNameCommand } from '../src/parser/extract-name-command';
 
 const signature = 'test-command {--T|<number>timeout=1 : время в секундах}';
 

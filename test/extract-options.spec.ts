@@ -1,7 +1,7 @@
-import { extractOptions } from '../src/parser/signature/extract-options';
-import { extractOption } from '../src/parser/signature/extract-option';
+import { extractOptions } from '../src/parser/extract-options';
+import { extractOption } from '../src/parser/extract-option';
 
-jest.mock('../src/parser/signature/extract-option');
+jest.mock('../src/parser/extract-option');
 const mockExtractOption = <jest.MockedFunction<typeof extractOption>>extractOption;
 
 test('Парсинг опций', () => {

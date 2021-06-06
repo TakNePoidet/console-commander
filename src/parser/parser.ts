@@ -1,4 +1,4 @@
-import { Definition } from '../../types';
+import { Definition } from '../types';
 import { extractNameCommand } from './extract-name-command';
 import { extractOptions } from './extract-options';
 
@@ -8,7 +8,7 @@ import { extractOptions } from './extract-options';
  * @param {string} expression - сигнатура команды
  * @returns {[string, Definition[]]} - имя команды и настройки опций
  */
-export function parse(expression: string): [string, Definition[]] {
+export function parser(expression: string): [string, Definition[]] {
 	const name = extractNameCommand(expression);
 	const matches = [...expression.matchAll(/\{\s*(.*?)\s*\}/g)];
 

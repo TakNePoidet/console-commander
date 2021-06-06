@@ -1,10 +1,10 @@
 import { Definition } from '../src/types';
-import { parse } from '../src/parser/signature/parser';
-import { extractNameCommand } from '../src/parser/signature/extract-name-command';
-import { extractOptions } from '../src/parser/signature/extract-options';
+import { parser } from '../src/parser/parser';
+import { extractNameCommand } from '../src/parser/extract-name-command';
+import { extractOptions } from '../src/parser/extract-options';
 
-jest.mock('../src/parser/signature/extract-name-command');
-jest.mock('../src/parser/signature/extract-options');
+jest.mock('../src/parser/extract-name-command');
+jest.mock('../src/parser/extract-options');
 
 const mockExtractNameCommand = <jest.MockedFunction<typeof extractNameCommand>>extractNameCommand;
 const mockExtractOptions = <jest.MockedFunction<typeof extractOptions>>extractOptions;
@@ -23,9 +23,9 @@ test('Парсинг сигнатуры команды', () => {
 			description: 'timeout in seconds'
 		}
 	]);
-	expect(parse(signature)).toBeInstanceOf(Array);
-	expect(parse(signature)).toHaveLength(2);
-	expect(parse(signature)).toEqual([
+	expect(parser(signature)).toBeInstanceOf(Array);
+	expect(parser(signature)).toHaveLength(2);
+	expect(parser(signature)).toEqual([
 		'test-command',
 		[
 			{
@@ -44,5 +44,5 @@ test('Парсинг сигнатуры команды', () => {
 
 	expect(mockExtractOptions.mock.calls).toHaveLength(3);
 	expect(mockExtractOptions).toHaveBeenLastCalledWith(['--T|<number>timeout=1 : timeout in seconds']);
-	expect(parse('test-command')).toEqual(['test-command', []]);
+	expect(parser('test-command')).toEqual(['test-command', []]);
 });

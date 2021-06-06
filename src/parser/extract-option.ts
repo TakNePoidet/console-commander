@@ -1,5 +1,6 @@
-import { Definition } from '../../types';
-import { createError } from '../../error';
+import { Definition } from '../types';
+import { setValueOfType, setValuesOfType } from '../util';
+import { createError } from '../error';
 import { extractDescriptionOption } from './extract-description-option';
 import { extractTypeOption } from './extract-type-option';
 
@@ -51,15 +52,32 @@ export function extractOption(token: string): Definition | never {
 
 			if (mathsDefaultArray) {
 				definition.multiple = true;
-				definition.type = definition.type === Boolean ? String : definition.type;
+				const defaultValues = mathsDefaultArray[2].split(',');
+
+				if (definition.type === Boolean) {
+					if (['true', 'false'].includes(defaultValues[0])) {
+						definition.defaultValue = setValuesOfType(defaultValues, Boolean);
+					} else {
+						definition.type = String;
+						definition.defaultValue = setValuesOfType(defaultValues, String);
+					}
+				} else {
+					definition.defaultValue = setValuesOfType(defaultValues, definition.type);
+				}
 				[, definition.name] = mathsDefaultArray;
-				definition.defaultValue = mathsDefaultArray[2].split(',').map((value) => definition.type(value));
 			} else if (mathsDefaultSingle) {
 				[, definition.name, definition.defaultValue] = mathsDefaultSingle;
-				definition.defaultValue =
-					definition.type === Boolean
-						? ['1', 1, 'true', true].includes(definition.defaultValue)
-						: definition.type(definition.defaultValue);
+
+				if (definition.type === Boolean) {
+					if (['true', 'false'].includes(definition.defaultValue)) {
+						definition.defaultValue = setValueOfType(definition.defaultValue, Boolean);
+					} else {
+						definition.type = String;
+						definition.defaultValue = setValueOfType(definition.defaultValue, String);
+					}
+				} else {
+					definition.defaultValue = setValueOfType(definition.defaultValue, definition.type);
+				}
 			} else {
 				definition.name = newToken;
 				definition.defaultValue = definition.type === Boolean ? false : null;
