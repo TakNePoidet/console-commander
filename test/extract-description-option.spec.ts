@@ -17,6 +17,6 @@ test('Получение описания опции', () => {
 	expect(() => extractDescriptionOption('timeout: ')).toThrow('Невалидный формат описания опции');
 	expect(() => extractDescriptionOption('timeout:')).toThrow('Невалидный формат описания опции');
 	Array.from<any>([null, false, undefined]).forEach((token) => {
-		expect(() => extractDescriptionOption(token)).toThrow('Непередан токен');
+		expect(() => extractDescriptionOption(token)).toThrow('Не передан токен');
 	});
 });

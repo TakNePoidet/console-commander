@@ -8,5 +8,5 @@ export function createError(error: string | Error): never {
 	if (typeof error === 'string') {
 		throw new Error(error);
 	}
-	throw new Error('Неизвесная ошибка');
+	throw new Error('Неизвестная ошибка');
 }

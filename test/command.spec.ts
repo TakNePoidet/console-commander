@@ -63,7 +63,7 @@ describe('Базовый класс команды', () => {
 				],
 				{
 					argv: ['--timeout', '1'],
-					stopAtFirstUnknown: false
+					stopAtFirstUnknown: true
 				}
 			);
 		});
@@ -110,7 +110,7 @@ describe('Базовый класс команды', () => {
 				],
 				{
 					argv: ['--timeout', '1'],
-					stopAtFirstUnknown: false
+					stopAtFirstUnknown: true
 				}
 			);
 

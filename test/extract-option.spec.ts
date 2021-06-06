@@ -173,7 +173,7 @@ describe('Парсинг опции', () => {
 		});
 	});
 
-	test('Болеан значение', () => {
+	test('Boolean значение', () => {
 		mockExtractDescriptionOption.mockReturnValueOnce(['loop', '']);
 		mockExtractTypeOption.mockReturnValueOnce(['loop', Boolean]);
 		expect(extractOption('loop')).toEqual({
@@ -199,14 +199,14 @@ describe('Парсинг опции', () => {
 		});
 	});
 
-	test('Отсутвие токена', () => {
+	test('Отсутствие токена', () => {
 		mockCreateError.mockImplementation(() => {
-			throw new Error('Непередан токен');
+			throw new Error('Не передан токен');
 		});
 
-		expect(() => extractOption(undefined)).toThrow('Непередан токен');
+		expect(() => extractOption(undefined)).toThrow('Не передан токен');
 		expect(mockCreateError.mock.calls).toHaveLength(1);
-		expect(mockCreateError).toHaveBeenLastCalledWith('Непередан токен');
+		expect(mockCreateError).toHaveBeenLastCalledWith('Не передан токен');
 	});
 
 	test('Ошибка', () => {
@@ -223,115 +223,3 @@ describe('Парсинг опции', () => {
 		expect(mockCreateError).toHaveBeenLastCalledWith('Неверный формат токена');
 	});
 });
-// test('Парсинг одной опции', () => {
-// 	const token = 'T|<number>timeout=1 : timeout in seconds';
-//
-// 	mockExtractDescriptionOption.mockReturnValueOnce(['T|<number>timeout=1', 'timeout in seconds']);
-// 	mockExtractTypeOption.mockReturnValueOnce(['timeout=1', Number]);
-//
-// 	const definition: Definition = extractOption(token);
-//
-// 	expect(mockExtractDescriptionOption).toHaveBeenCalledWith('T|<number>timeout=1 : timeout in seconds');
-// 	expect(mockExtractTypeOption).toHaveBeenCalledWith('<number>timeout=1');
-//
-// 	expect(definition).toBeInstanceOf(Object);
-// 	expect(definition).toMatchObject({
-// 		alias: 'T',
-// 		name: 'timeout',
-// 		defaultValue: 1,
-// 		type: Number,
-// 		multiple: false,
-// 		description: 'timeout in seconds'
-// 	});
-// 	expect(definition).not.toBeUndefined();
-//
-// 	mockExtractDescriptionOption.mockReturnValueOnce(['src*', '']);
-// 	mockExtractTypeOption.mockReturnValueOnce(['src*', Boolean]);
-// 	expect(extractOption('src*')).toEqual({
-// 		name: 'src',
-// 		defaultValue: [],
-// 		multiple: true,
-// 		type: String,
-// 		description: ''
-// 	});
-//
-// 	mockExtractDescriptionOption.mockReturnValueOnce(['<number>id*=', '']);
-// 	mockExtractTypeOption.mockReturnValueOnce(['id*=', Number]);
-// 	expect(extractOption('<number>id=*')).toEqual({
-// 		name: 'id',
-// 		defaultValue: [],
-// 		multiple: true,
-// 		type: Number,
-// 		description: ''
-// 	});
-//
-// 	mockExtractDescriptionOption.mockReturnValueOnce(['<number>id*=', '']);
-// 	mockExtractTypeOption.mockReturnValueOnce(['id=', Number]);
-// 	expect(extractOption('<number>id=')).toEqual({
-// 		name: 'id',
-// 		defaultValue: null,
-// 		multiple: false,
-// 		type: Number,
-// 		description: ''
-// 	});
-//
-// 	expect(extractOption('<number>src*=1')).toEqual({
-// 		name: 'src',
-// 		defaultValue: [1],
-// 		multiple: true,
-// 		type: Number,
-// 		description: ''
-// 	} as Definition);
-//
-
-//
-// 	//
-// 	// expect(extractOption('<number>src*')).toEqual({
-// 	// 	name: 'src',
-// 	// 	defaultValue: [],
-// 	// 	multiple: true,
-// 	// 	type: Number,
-// 	// 	description: ''
-// 	// } as Definition);
-// 	// expect(extractOption('src*=test')).toEqual({
-// 	// 	name: 'src',
-// 	// 	defaultValue: ['test'],
-// 	// 	multiple: true,
-// 	// 	type: String,
-// 	// 	description: ''
-// 	// } as Definition);
-// 	// expect(extractOption('<number>src*=1')).toEqual({
-// 	// 	name: 'src',
-// 	// 	defaultValue: [1],
-// 	// 	multiple: true,
-// 	// 	type: Number,
-// 	// 	description: ''
-// 	// } as Definition);
-// 	// expect(extractOption('<number>src')).toEqual({
-// 	// 	name: 'src',
-// 	// 	defaultValue: null,
-// 	// 	multiple: false,
-// 	// 	type: Number,
-// 	// 	description: ''
-// 	// } as Definition);
-// 	//
-// 	// expect(extractOption('<number>src*=')).toEqual({
-// 	// 	name: 'src',
-// 	// 	defaultValue: [],
-// 	// 	multiple: true,
-// 	// 	type: Number,
-// 	// 	description: ''
-// 	// } as Definition);
-// 	//
-// 	// expect(extractOption('<number>src=')).toEqual({
-// 	// 	name: 'src',
-// 	// 	defaultValue: null,
-// 	// 	multiple: false,
-// 	// 	type: Number,
-// 	// 	description: ''
-// 	// } as Definition);
-// 	//
-// 	// Array.from<any>([null, false, undefined]).forEach((token) => {
-// 	// 	expect(() => extractOption(token)).toThrow('Непередан токен');
-// 	// });
-// });

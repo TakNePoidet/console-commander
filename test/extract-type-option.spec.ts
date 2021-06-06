@@ -16,6 +16,6 @@ test('Получение типа опции', () => {
 	expect(() => extractTypeOption('<bool>loop')).toThrow('Неизвестный тип для параметра loop');
 	expect(() => extractTypeOption('<>')).toThrow('Неверный формат токена');
 	Array.from<any>([null, false, undefined]).forEach((item) => {
-		expect(() => extractTypeOption(item)).toThrow('Непередан токен');
+		expect(() => extractTypeOption(item)).toThrow('Не передан токен');
 	});
 });

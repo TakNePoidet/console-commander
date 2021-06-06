@@ -43,12 +43,12 @@ export abstract class Command<O extends EmptyObject = EmptyObject> {
 	public abstract description: string;
 
 	/**
-	 * Настройки для парсигна опций командной строки
+	 * Настройки для парсинга опций командной строки
 	 *
 	 * @type {Definition[]}
 	 * @protected
 	 */
-	protected definitions: Definition[];
+	private definitions: Definition[];
 
 	/**
 	 * Опции полученные из командной строки
@@ -66,14 +66,14 @@ export abstract class Command<O extends EmptyObject = EmptyObject> {
 	public abstract handle(): Promise<void> | void;
 
 	/**
-	 * Парсиг опций командной строки
+	 * Парсинг опций командной строки
 	 *
 	 * @param {CommandLineOptions} globalOption - глобальные опции
 	 * @param {string[]} argv - параметры командной
 	 * @returns {void}
-	 * @protected
+	 * @private
 	 */
-	protected parseOption(globalOption: CommandLineOptions, argv: string[]): void {
+	private parseOption(globalOption: CommandLineOptions, argv: string[]): void {
 		const optionDefinition = [...this.definitions];
 
 		if (optionDefinition.findIndex(({ name }) => name === 'help') === -1) {
@@ -87,7 +87,7 @@ export abstract class Command<O extends EmptyObject = EmptyObject> {
 		}
 
 		this.options = {
-			...commandLineArgs(optionDefinition, { argv, stopAtFirstUnknown: false }),
+			...commandLineArgs(optionDefinition, { argv, stopAtFirstUnknown: true }),
 			...globalOption
 		} as O & CommandOption;
 	}
@@ -95,10 +95,10 @@ export abstract class Command<O extends EmptyObject = EmptyObject> {
 	/**
 	 * Формирование справки
 	 *
-	 * @returns {string} - текст справки
-	 * @protected
+	 * @returns {void}
+	 * @private
 	 */
-	protected help(): string {
+	private help(): void {
 		const optionList = this.definitions.map((definition) => {
 			const { name, alias, type, description } = definition;
 
@@ -132,6 +132,6 @@ export abstract class Command<O extends EmptyObject = EmptyObject> {
 			}
 		];
 
-		return commandLineUsage(sections);
+		console.log(commandLineUsage(sections));
 	}
 }

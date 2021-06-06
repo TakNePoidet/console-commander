@@ -4,7 +4,7 @@ test('Вывод ошибки', () => {
 	expect(() =>
 		// @ts-ignore
 		createError()
-	).toThrow('Неизвесная ошибка');
+	).toThrow('Неизвестная ошибка');
 	expect(() => createError('Передан параметр')).toThrow('Передан параметр');
 	expect(() => createError(new Error('ошибка'))).toThrow('ошибка');
 });

@@ -13,7 +13,7 @@ export class Commander {
 	/**
 	 * Регистрация команд
 	 *
-	 * @param {...CommandConstructor} commands - клсссы команд
+	 * @param {...CommandConstructor} commands - классы команд
 	 * @returns {this} - Manager
 	 */
 	public append(...commands: CommandConstructor[]): this {
@@ -34,7 +34,7 @@ export class Commander {
 	 */
 	private registration(Constructor): void {
 		if (typeof Constructor !== 'function') {
-			return createError('Команда не является функцией котсруктором');
+			return createError('Команда не является функцией конструктором');
 		}
 		const instance = new Constructor();
 
@@ -46,6 +46,10 @@ export class Commander {
 
 		if (typeof instancePrivate.signature !== 'string') {
 			return createError('Отсутствует сигнатура команды');
+		}
+
+		if (typeof instancePrivate.handle !== 'function') {
+			return createError('Отсутствует реализация метода дескриптора');
 		}
 
 		const [name, definitions] = parser(instancePrivate.signature);
@@ -63,33 +67,38 @@ export class Commander {
 	public start(): Promise<void> {
 		return new Promise((resolve, reject) => {
 			try {
-				const mainDefinitions: OptionDefinition[] = [
-					{ name: 'name', defaultOption: true },
-					{
-						name: 'list',
-						alias: 'L',
-						type: Boolean,
-						defaultValue: false
-					},
-					{
-						name: 'help',
-						alias: 'H',
-						type: Boolean,
-						defaultValue: false
-					}
-				];
+				const mainDefinitions: OptionDefinition[] = [{ name: 'nameGeneralCommand', defaultOption: true }];
 
-				const mainCommand: CommandLineOptions & { name?: string } = commandLineArgs(mainDefinitions, {
+				const mainCommand: CommandLineOptions & { nameGeneralCommand?: string } = commandLineArgs(mainDefinitions, {
 					stopAtFirstUnknown: true
 				});
 
-				if (!mainCommand.name) {
+				if (!mainCommand.nameGeneralCommand) {
+					const mainDefinitionsOptions = [
+						{
+							name: 'list',
+							alias: 'L',
+							type: Boolean,
+							defaultValue: false
+						},
+						{
+							name: 'help',
+							alias: 'H',
+							type: Boolean,
+							defaultValue: false
+						}
+					];
+
+					// eslint-disable-next-line no-underscore-dangle
+					const argv = mainCommand._unknown || [];
+					const mainOptions = commandLineArgs(mainDefinitionsOptions, { argv, stopAtFirstUnknown: true });
+
 					switch (true) {
-						case mainCommand.list:
+						case mainOptions.list:
 							this.printListCommand();
 							resolve();
 							break;
-						case mainCommand.help:
+						case mainOptions.help:
 							this.printHelp();
 							resolve();
 							break;
@@ -98,20 +107,14 @@ export class Commander {
 							break;
 					}
 				}
-				if (!mainCommand.name || !this.commands.has(mainCommand.name)) {
-					createError(`Команда с именем '${bold(mainCommand.name)}' не зарегистриванная`);
+
+				if (!mainCommand.nameGeneralCommand || !this.commands.has(mainCommand.nameGeneralCommand)) {
+					createError(`Команда с именем '${bold(mainCommand.nameGeneralCommand)}' не зарегистрирована`);
 				}
-
-				const command = this.commands.get(mainCommand.name as string) as CommandPrivate;
-
-				if (typeof command.handle !== 'function') {
-					createError('Отсутствует реализация метода дескриптора');
-				}
-
-				const argv = process.argv.slice(3);
+				const command = this.commands.get(mainCommand.nameGeneralCommand as string) as CommandPrivate;
 
 				// eslint-disable-next-line no-underscore-dangle
-				[...(mainCommand._unknown ?? [])].forEach((value) => argv.push(value));
+				const argv = mainCommand._unknown || [];
 
 				command.parseOption({} as CommandLineOptions, argv);
 

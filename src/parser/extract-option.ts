@@ -7,12 +7,12 @@ import { extractTypeOption } from './extract-type-option';
 /**
  * Получение настроек одной опции
  *
- * @param {string} token - строка содержащая опуию
+ * @param {string} token - строка содержащая опцию
  * @returns {Definition} - настройка опции
  */
 export function extractOption(token: string): Definition | never {
 	if (!token) {
-		createError('Непередан токен');
+		createError('Не передан токен');
 	}
 	try {
 		const definition: Partial<Definition> = {

@@ -7,6 +7,7 @@ const typescript = require('@rollup/plugin-typescript');
 const { terser } = require('rollup-plugin-terser');
 const externals = require('rollup-plugin-node-externals');
 const babel = require('rollup-plugin-babel');
+const eslint = require('@rollup/plugin-eslint');
 
 if (!isDev) {
 	plugins.push(terser());

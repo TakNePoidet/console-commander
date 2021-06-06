@@ -53,11 +53,11 @@ describe('Менеджер', () => {
 	describe('Регистрация новой команды', () => {
 		test('Передача не класса', () => {
 			mockCreateError.mockImplementationOnce(() => {
-				throw new Error('Команда не является функцией котсруктором');
+				throw new Error('Команда не является функцией конструктором');
 			});
-			expect(() => commander[commanderProperty.registration]({})).toThrow('Команда не является функцией котсруктором');
+			expect(() => commander[commanderProperty.registration]({})).toThrow('Команда не является функцией конструктором');
 		});
-		test('Передача класаа без базового класаа', () => {
+		test('Передача класса без базового класса', () => {
 			mockCreateError.mockImplementationOnce(() => {
 				throw new Error('Команда не является инстансом базового класса `Command`');
 			});
@@ -75,8 +75,19 @@ describe('Менеджер', () => {
 			expect(() => commander[commanderProperty.registration](createTestClass('test-command'))).not.toThrow(
 				'Отсутствует сигнатура команды'
 			);
+			expect(mockCreateError).toHaveBeenCalledTimes(2);
 		});
 
+		test(`Нет метода 'handle'`, async () => {
+			mockCreateError.mockImplementationOnce(() => {
+				throw new Error('Отсутствует реализация метода дескриптора');
+			});
+
+			expect(() => commander[commanderProperty.registration](createTestClass('test-command'))).toThrow(
+				'Отсутствует реализация метода дескриптора'
+			);
+			expect(mockCreateError).toHaveBeenCalledTimes(1);
+		});
 		test('Парсинг сигнатуры', () => {
 			mockParser.mockImplementationOnce(() => [
 				'test-command',
@@ -91,7 +102,15 @@ describe('Менеджер', () => {
 					}
 				]
 			]);
-			commander[commanderProperty.registration](createTestClass('test-command --timeout=1'));
+
+			const Constructor = createTestClass('test-command --timeout=1');
+
+			commander[commanderProperty.registration](
+				class extends Constructor {
+					// @ts-ignore
+					handle(): void {}
+				}
+			);
 
 			expect(mockParser.mock.calls).toHaveLength(1);
 			expect(mockParser).toHaveBeenCalledWith('test-command --timeout=1');
@@ -204,55 +223,90 @@ describe('Менеджер', () => {
 		});
 	});
 	test('Вывод справки', async () => {
-		mockCommandLineArgs.mockReturnValueOnce({
-			help: true
-		});
+		mockCommandLineArgs
+			.mockReturnValueOnce({
+				_unknown: ['--help']
+			})
+			.mockReturnValueOnce({
+				help: true
+			});
 		const mockPrintHelp = jest.spyOn<Commander, any>(commander, 'printHelp').mockImplementation();
 
 		await expect(commander.start()).resolves.not.toThrow();
 		expect(mockPrintHelp).toHaveBeenCalledTimes(1);
-		expect(mockCommandLineArgs).toHaveBeenCalledTimes(1);
+		expect(mockCommandLineArgs).toHaveBeenCalledTimes(2);
+		expect(mockCommandLineArgs).toHaveBeenNthCalledWith(
+			2,
+			[
+				{
+					name: 'list',
+					alias: 'L',
+					type: Boolean,
+					defaultValue: false
+				},
+				{
+					name: 'help',
+					alias: 'H',
+					type: Boolean,
+					defaultValue: false
+				}
+			],
+			{ argv: ['--help'], stopAtFirstUnknown: true }
+		);
 	});
 	test('Вывод списка команд', async () => {
-		mockCommandLineArgs.mockReturnValueOnce({
-			list: true
-		});
+		mockCommandLineArgs
+			.mockReturnValueOnce({
+				_unknown: ['--list']
+			})
+			.mockReturnValueOnce({
+				list: true
+			});
 		const mockPrintListCommand = jest.spyOn<Commander, any>(commander, 'printListCommand').mockImplementation();
 
 		await expect(commander.start()).resolves.not.toThrow();
 		expect(mockPrintListCommand).toHaveBeenCalledTimes(1);
-		expect(mockCommandLineArgs).toHaveBeenCalledTimes(1);
+		expect(mockCommandLineArgs).toHaveBeenCalledTimes(2);
+		expect(mockCommandLineArgs).toHaveBeenNthCalledWith(
+			2,
+			[
+				{
+					name: 'list',
+					alias: 'L',
+					type: Boolean,
+					defaultValue: false
+				},
+				{
+					name: 'help',
+					alias: 'H',
+					type: Boolean,
+					defaultValue: false
+				}
+			],
+			{ argv: ['--list'], stopAtFirstUnknown: true }
+		);
 	});
 	describe('Старт работы менеджера', () => {
 		test('Не введено имя команды', async () => {
-			mockCommandLineArgs.mockReturnValueOnce({});
+			mockCommandLineArgs.mockReturnValueOnce({}).mockReturnValueOnce({});
 			await expect(commander.start()).rejects.toThrow('Введите имя команды');
-			expect(mockCommandLineArgs).toHaveBeenCalledTimes(1);
+			expect(mockCommandLineArgs).toHaveBeenCalledTimes(2);
 		});
 		test('Незарегистрированная команда', async () => {
-			mockCommandLineArgs.mockReturnValueOnce({
-				name: 'test'
-			});
+			mockCommandLineArgs
+				.mockReturnValueOnce({
+					nameGeneralCommand: 'test'
+				})
+				.mockReturnValueOnce({
+					name: 'test'
+				});
 			mockCreateError.mockImplementationOnce(() => {
-				throw new Error(`Команда с именем 'test' не зарегистриванная`);
+				throw new Error(`Команда с именем 'test' не зарегистрирована`);
 			});
-			await expect(commander.start()).rejects.toThrow(`Команда с именем 'test' не зарегистриванная`);
+			await expect(commander.start()).rejects.toThrow(`Команда с именем 'test' не зарегистрирована`);
 		});
 
-		test(`Нет метода 'handle'`, async () => {
-			mockCommandLineArgs.mockReturnValueOnce({
-				name: 'test'
-			});
-			mockCreateError.mockImplementationOnce(() => {
-				throw new Error(`Отсутствует реализация метода дескриптора`);
-			});
-			const Constructor = createTestClass('test');
-
-			commander[commanderProperty.commands].set('test', Constructor);
-			await expect(commander.start()).rejects.toThrow('Отсутствует реализация метода дескриптора');
-		});
-
-		describe('Выполение команды', () => {
+		describe('Выполнение команды', () => {
 			const handle = jest.fn().mockResolvedValue(undefined);
 			const Constructor = createTestClass(
 				'test',
@@ -269,9 +323,15 @@ describe('Менеджер', () => {
 				handle.mockReset();
 			});
 			test('Вывод справки', async () => {
-				mockCommandLineArgs.mockReturnValueOnce({
-					name: 'test'
-				});
+				mockCommandLineArgs
+					.mockReturnValueOnce({
+						nameGeneralCommand: 'test',
+						_unknown: ['--help']
+					})
+					.mockReturnValueOnce({
+						name: 'test',
+						_unknown: ['--help']
+					});
 				const mockParseOption = jest.spyOn(command, 'parseOption').mockImplementation(() => {
 					command[commandNameProperty.options] = {
 						help: true
@@ -284,13 +344,22 @@ describe('Менеджер', () => {
 				expect(mockParseOption).toHaveBeenCalledTimes(1);
 				expect(mockHelp).toHaveBeenCalledTimes(1);
 				expect(handle).toHaveBeenCalledTimes(0);
+				expect(mockCommandLineArgs).toHaveBeenNthCalledWith(1, [{ defaultOption: true, name: 'nameGeneralCommand' }], {
+					stopAtFirstUnknown: true
+				});
+				expect(mockParseOption).toHaveBeenNthCalledWith(1, {}, ['--help']);
 			});
 			test('Запуск команды', async () => {
 				process.argv = ['/usr/local/bin/node', 'test-cli', 'test'];
-				mockCommandLineArgs.mockReturnValueOnce({
-					name: 'test',
-					_unknown: ['--timeout', '1']
-				});
+				mockCommandLineArgs
+					.mockReturnValueOnce({
+						nameGeneralCommand: 'test',
+						_unknown: ['--timeout', '1']
+					})
+					.mockReturnValueOnce({
+						// name: 'test',
+						_unknown: ['--timeout', '1']
+					});
 				const mockParseOption = jest.spyOn(command, 'parseOption').mockImplementation(() => {
 					command[commandNameProperty.options] = {};
 				});
@@ -301,6 +370,10 @@ describe('Менеджер', () => {
 				expect(mockParseOption).toHaveBeenCalledTimes(1);
 				expect(mockHelp).toHaveBeenCalledTimes(0);
 				expect(handle).toHaveBeenCalledTimes(1);
+				expect(mockCommandLineArgs).toHaveBeenNthCalledWith(1, [{ defaultOption: true, name: 'nameGeneralCommand' }], {
+					stopAtFirstUnknown: true
+				});
+				expect(mockParseOption).toHaveBeenNthCalledWith(1, {}, ['--timeout', '1']);
 			});
 		});
 	});

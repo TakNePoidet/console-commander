@@ -3,10 +3,8 @@ import { createError } from '../error';
 /**
  * Получение типа опции
  *
- * @param {string} token - строка содержащая опуию
- * @returns {[string, Function]} - массив со значениями:
- * 	1) опция
- * 	2) функция конструктор типа значения опции
+ * @param {string} token - строка содержащая опцию
+ * @returns {[string, Function]} - массив со значениями: 1) опция 	2) функция конструктор типа значения опции
  */
 export function extractTypeOption(
 	token: string
@@ -14,7 +12,7 @@ export function extractTypeOption(
 	const regexp = /^(<(?<type>[a-zA-z0-9]+)>)?(([a-z0-9-]+)(\*?=(.*)|\*)?)$/;
 
 	if (!token) {
-		return createError('Непередан токен');
+		return createError('Не передан токен');
 	}
 	let newToken: string;
 

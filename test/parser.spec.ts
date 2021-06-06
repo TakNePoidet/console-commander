@@ -1,5 +1,5 @@
 import { Definition } from '../src/types';
-import { parser } from '../src/parser/parser';
+import { parser } from '../src/parser';
 import { extractNameCommand } from '../src/parser/extract-name-command';
 import { extractOptions } from '../src/parser/extract-options';
 

@@ -16,7 +16,7 @@ $ yarn add console-commander
 
 ```javascript
 // Импорт модулей
-const {Commander, Command} = require('console-commander');
+const { Commander, Command } = require('console-commander');
 
 // Создание класса обработчика команд
 class TestCommand extends Command {
@@ -29,7 +29,7 @@ class TestCommand extends Command {
 	handle() {
 		return new Promise((resolve) => {
 			setTimeout(() => {
-				resolve({response: 'ok'});
+				resolve({ response: 'ok' });
 			}, this.options.timeout * 1000);
 		});
 	}
@@ -127,14 +127,14 @@ class TestCommand extends Command {
 }
 ```
 
-Значения разделяются  `,`
+Значения разделяются `,`
 
 ## Параметры командира
 
-| Опция | Алиас |                               Описание |
-| :----- | :---: | ------------------------------------: |
-| --help |  -H   |                         Вывод справки |
-| --list |  -L   |                   Вывод списка команд |
+| Опция  | Алиас |            Описание |
+| :----- | :---: | ------------------: |
+| --help |  -H   |       Вывод справки |
+| --list |  -L   | Вывод списка команд |
 
 ### Вывод справки у команды
 

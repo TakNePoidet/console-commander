@@ -3,12 +3,12 @@ import { createError } from '../error';
 /**
  * Получение описания опции
  *
- * @param {string} token - строка содержащая опуию
- * @returns {string[]} - мессив занчений где певрое это опция, а второе ее описание
+ * @param {string} token - строка содержащая опцию
+ * @returns {string[]} - массив значений где перове это опция, а второе ее описание
  */
 export function extractDescriptionOption(token: string): string[] | never {
 	if (!token) {
-		createError('Непередан токен');
+		createError('Не передан токен');
 	}
 
 	const regExp = /(<([a-zA-z0-9]+)>)?[a-z0-9-]+(\*?=(.*)|\*)?$/;

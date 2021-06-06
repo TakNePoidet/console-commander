@@ -1,5 +1,5 @@
 /**
- * Конвертирование в болееан значение
+ * Конвертирование в boolean значение
  *
  * @param {any} value - исходное значение
  * @returns {boolean} - конвертированное значение
@@ -23,7 +23,7 @@ export function convertBoolean(value: string | boolean | number): boolean {
  * Присваивание значения по умолчанию с нужным типом
  *
  * @param {any} value - исходное значение
- * @param {NumberConstructor | StringConstructor | BooleanConstructor} type - функция контруктор приметивного типа
+ * @param {NumberConstructor | StringConstructor | BooleanConstructor} type - функция конструктор примитивного типа
  * @returns {any} - сконвертированное значение
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -38,7 +38,7 @@ export function setValueOfType(value: any, type: NumberConstructor | StringConst
  * Присваивание значения по умолчанию с нужным типом в массиве
  *
  * @param {any[]} values - массив исходных значений
- * @param {NumberConstructor | StringConstructor | BooleanConstructor} type - функция контруктор приметивного типа
+ * @param {NumberConstructor | StringConstructor | BooleanConstructor} type - функция конструктор примитивного типа
  * @returns {any[]} - сконвертированный массив
  */
 export function setValuesOfType(
