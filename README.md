@@ -1,142 +1,142 @@
-<!-- @format -->
-
 # console-commander
 
-Simple Console Command manager
+Простой консольный менеджер команд
 
-## Installation
+## Установка
 
-Add the package to your dev-dependencies using npm or yarn
+Добавьте пакет в свои `dependencies` с помощью npm или yarn
 
 ```bash
-$ npm i -D console-commander
+$ npm i console-commander
 
-$ yarn add -D console-commander
+$ yarn add console-commander
 ```
 
-## Usage
+## Использование
 
 ```javascript
-// Importing models
-const { Commander, Command } = require('console-commander');
-// Creating a command handler class
+// Импорт модулей
+const {Commander, Command} = require('console-commander');
+
+// Создание класса обработчика команд
 class TestCommand extends Command {
-  signature = 'test-command {--T|<number>timeout=1 : timeout in seconds}';
+	signature = 'test-command {--T|<number>timeout=1 : время в секундах}';
 
-  get description() {
-    return 'This is the command description';
-  }
+	get description() {
+		return 'Это описание команды';
+	}
 
-  handle() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ response: 'ok' });
-      }, this.options.timeout * 1000);
-    });
-  }
+	handle() {
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve({response: 'ok'});
+			}, this.options.timeout * 1000);
+		});
+	}
 }
 
-// Initializing the Commander
+// Инициализация Commander
 const commander = new Commander();
 
-// Command registration
-commander.registration(TestCommand);
+// Добавление команд
+commander.append(TestCommand);
 
-// start
+// Старт
 commander
-  .start()
-  .then((result) => {
-    console.log(result);
-  })
-  .catch((error) => console.error(error.message));
+	.start()
+	.then((result) => {
+		console.log(result);
+	})
+	.catch((error) => console.error(error.message));
 ```
 
 ```bash
 $ example test-command --timeout 5
 ```
 
-## Defining the Input data
+## Определение входных данных
 
-All options provided by the user are enclosed in curly brackets and prefixed with `--`
-
-```javascript
-class TestCommand extends Command {
-  signature = 'test-command {--verbose}';
-}
-```
-
-### Alias
-
-To assign a shortcut when defining an option, you may specify it before the option name and use the | character as a delimiter to separate the shortcut from the full option name:
+Все параметры, предоставленные пользователем, заключены в фигурные скобки и имеют префикс "--".
 
 ```javascript
 class TestCommand extends Command {
-  signature = 'test-command {--T|timeout}';
+	signature = 'test-command {--verbose}';
 }
 ```
 
-### Descriptions
+### Алиас
 
-You may assign descriptions to input options by separating the option name from the description using a colon.
+Чтобы назначить алиас при определении опции, вы можете указать его перед именем опции и использовать символ | в качестве
+разделителя, чтобы отделить ярлык от полного имени опции:
 
 ```javascript
 class TestCommand extends Command {
-  signature = 'test-command {--timeout:timeout in seconds}';
+	signature = 'test-command {--T|timeout}';
 }
 ```
 
-### Typing
+### Описание
 
-To describe the type, write it `<typing>` ahead with the option name
+Вы можете назначить описания параметрам ввода, отделив имя параметра от описания двоеточием.
 
 ```javascript
 class TestCommand extends Command {
-  signature = 'test-command {--<number>timeout}';
+	signature = 'test-command {--timeout : время в секундах}';
 }
 ```
 
-The types `Number` and `String` are allowed
+### Типизация
 
-#### default `String`
-
-### Input array
-
-To wait for multiple options, press `*` after the option name
+Чтобы описать тип, напишите его `<typing>` впереди с именем параметра
 
 ```javascript
 class TestCommand extends Command {
-  signature = 'test-command {--src*}';
+	signature = 'test-command {--<number>timeout}';
 }
 ```
 
-### Default values
+Разрешены типы `Boolean`, `Number` и `String`
 
-To define a default value, terminate the name with `=` and add the value
+#### default `Boolean`
+
+### Ввод массива
+
+Чтобы дождаться нескольких вариантов, нажмите `*` после имени параметра
 
 ```javascript
 class TestCommand extends Command {
-  signature = 'test-command {--src=one.js}';
+	signature = 'test-command {--src*}';
 }
 ```
 
-For multiple default values, you must complete `*=`
+### Значения по умолчанию
+
+Чтобы определить значение по умолчанию, завершите имя с помощью `=` и добавьте значение
 
 ```javascript
 class TestCommand extends Command {
-  signature = 'test-command {--src*=one.js,two.js}';
+	signature = 'test-command {--src=one.js}';
 }
 ```
 
-The values ​​are separated by `,`
+Для нескольких значений по умолчанию необходимо написать `*=`
 
-## Commander options
+```javascript
+class TestCommand extends Command {
+	signature = 'test-command {--src*=one.js,two.js}';
+}
+```
 
-| Option | Alias |                          Descriptions |
+Значения разделяются  `,`
+
+## Параметры командира
+
+| Опция | Алиас |                               Описание |
 | :----- | :---: | ------------------------------------: |
-| --help |  -H   |                  Show the user manual |
-| --list |  -L   | Displays a list of available commands |
+| --help |  -H   |                         Вывод справки |
+| --list |  -L   |                   Вывод списка команд |
 
-### Help command
+### Вывод справки у команды
 
 ```bash
 $ example test-command --help

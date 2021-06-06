@@ -18,10 +18,8 @@ module.exports = {
 	output: [
 		{
 			file: './dist/index.js',
-			exports: 'auto',
 			format: 'cjs',
-			sourcemap: isDev,
-			externalLiveBindings: true
+			sourcemap: isDev
 		}
 	],
 	watch: {
@@ -35,7 +33,8 @@ module.exports = {
 		nodeResolve(),
 		typescript({
 			sourceMap: isDev,
-			tsconfig: './tsconfig.json'
+			tsconfig: './tsconfig.json',
+			exclude: 'test/**'
 		}),
 		babel(),
 		...plugins

@@ -1,110 +1,129 @@
-import commandLineArgs, { CommandLineOptions, OptionDefinition } from 'command-line-args';
+import commandLineArgs, { CommandLineOptions } from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
-import { Console } from '../console';
-import { OptionDescriptions } from '../interface';
+import { Definition, EmptyObject } from '../types';
 
-/**
- * Базовый класс команды
- *
- * @augments Console
- */
-export abstract class Command extends Console {
+export interface CommandOption extends Record<string, any> {
+	help: boolean;
+}
+
+export interface CommandPrivate {
+	signature: string;
+	commandName: string;
+	description: string;
+	definitions: Definition[];
+	handle: () => Promise<void>;
+	parseOption: (globalOption: CommandLineOptions, argv: string[]) => void;
+	options: Record<string, any>;
+	help: () => void;
+}
+
+export type CommandConstructor<C extends Command = Command> = { new (): C };
+
+export abstract class Command<O extends EmptyObject = EmptyObject> {
 	/**
 	 * Имя команды
-	 */
-	protected commandName = '';
-
-	/**
-	 * Приватный массив параметров для `command-line-args`
 	 *
-	 * @type {OptionDefinition[]}
+	 * @type {string}
+	 * @protected
 	 */
-	private _optionDefinition: OptionDefinition[] = [];
+	protected commandName: string;
 
 	/**
+	 * Сигнатура команды
 	 *
-	 * Объект с опциями команды
+	 * @type {string}
 	 */
-	public options: CommandLineOptions = {};
+	public abstract signature: string;
 
 	/**
+	 * Описание команды
 	 *
-	 * Объект с описанием опций команды
+	 * @type {string}
 	 */
-	private optionDescriptions: OptionDescriptions = {};
+	public abstract description: string;
 
 	/**
-	 * Массив параметров для `command-line-args`
+	 * Настройки для парсигна опций командной строки
 	 *
-	 * @type {OptionDefinition[]}
-	 * @returns {OptionDefinition[]}
+	 * @type {Definition[]}
+	 * @protected
 	 */
-	private get optionDefinition(): OptionDefinition[] {
-		return this._optionDefinition;
-	}
+	protected definitions: Definition[];
 
 	/**
-	 * @param {OptionDefinition[]} value - Массив параметров для `command-line-args`
+	 * Опции полученные из командной строки
+	 *
+	 * @type {CommandOption}
+	 * @protected
 	 */
-	private set optionDefinition(value: OptionDefinition[]) {
-		this._optionDefinition = value;
-	}
+	protected options: O & CommandOption;
 
 	/**
-	 * Парсинг параметров командной строки  и запись в опции команды
+	 * Основная функция команды
+	 *
+	 * @returns  {Promise<void> | void}
+	 */
+	public abstract handle(): Promise<void> | void;
+
+	/**
+	 * Парсиг опций командной строки
 	 *
 	 * @param {CommandLineOptions} globalOption - глобальные опции
-	 * @param {string[]} argv - массив командной строки
+	 * @param {string[]} argv - параметры командной
 	 * @returns {void}
+	 * @protected
 	 */
-	private parseOption(globalOption: CommandLineOptions, argv: string[]): void {
-		const optionDefinition = [...this._optionDefinition];
+	protected parseOption(globalOption: CommandLineOptions, argv: string[]): void {
+		const optionDefinition = [...this.definitions];
 
 		if (optionDefinition.findIndex(({ name }) => name === 'help') === -1) {
 			optionDefinition.push({
 				name: 'help',
 				alias: 'H',
 				type: Boolean,
-				defaultValue: false
+				defaultValue: false,
+				description: 'Вызов справки'
 			});
 		}
+
 		this.options = {
 			...commandLineArgs(optionDefinition, { argv, stopAtFirstUnknown: false }),
 			...globalOption
-		};
+		} as O & CommandOption;
 	}
 
-	public abstract signature: string;
-
-	public abstract description: string;
-
-	public abstract handle(): any | Promise<any>;
-
 	/**
-	 *Вывод справки
+	 * Формирование справки
+	 *
+	 * @returns {string} - текст справки
+	 * @protected
 	 */
-	protected help(): void {
-		const optionList = this.optionDefinition.map(({ name, alias, type }) => ({
-			name,
-			alias,
-			type,
-			description: this.optionDescriptions[name] || ''
-		}));
+	protected help(): string {
+		const optionList = this.definitions.map((definition) => {
+			const { name, alias, type, description } = definition;
+
+			return {
+				name,
+				alias,
+				type,
+				description
+			};
+		});
 		const sections = [
 			{
-				header: 'Command description',
+				header: 'Описание команды',
 				content: this.description
 			},
 			{
-				header: 'Synopsis',
+				header: 'Пример',
 				content: `$ app ${this.commandName} <options>`
 			},
 			{
-				header: 'List of available options for the command',
+				header: 'Список опций команды',
 				optionList: [
 					{
 						name: 'help',
-						description: 'Getting help from the command',
+						description: 'Вывод справки',
 						alias: 'H',
 						type: Boolean
 					},
@@ -113,6 +132,6 @@ export abstract class Command extends Console {
 			}
 		];
 
-		console.log(commandLineUsage(sections));
+		return commandLineUsage(sections);
 	}
 }

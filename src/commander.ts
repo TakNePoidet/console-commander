@@ -1,39 +1,64 @@
+import { bold } from 'chalk';
 import commandLineArgs, { CommandLineOptions, OptionDefinition } from 'command-line-args';
 import commandLineUsage from 'command-line-usage';
 import { table } from 'table';
-import { CommandConstructor, CommandDescription, CommandPrivateApi } from './interface';
-import { ParserSignature } from './parser';
-/**
- *
- */
+import { Command, CommandConstructor, CommandPrivate } from './command';
+import { createError } from './error';
+import { parser } from './parser';
+import { CommandDescription } from './types';
+
 export class Commander {
-	private commands = new Map<string, CommandPrivateApi>();
+	private commands = new Map<string, CommandPrivate>();
 
 	/**
-	 * Регистрация команд в менеджере
+	 * Регистрация команд
 	 *
-	 * @param {...CommandConstructor} commands - массив конструкторов класса команд
-	 * @returns {this} Commander
+	 * @param {...CommandConstructor} commands - клсссы команд
+	 * @returns {this} - Manager
 	 */
-	public registration(...commands: CommandConstructor[]): Commander {
-		commands.forEach((Instance) => {
-			const instance = new Instance() as CommandPrivateApi;
-
-			if (typeof instance.signature !== 'string') {
-				throw new Error('Missing command signature');
-			}
-			const [name, optionDefinitions, optionDescriptions] = ParserSignature.parse(instance.signature);
-
-			instance.commandName = name;
-			instance.optionDefinition = [...optionDefinitions];
-			instance.optionDescriptions = optionDescriptions;
-			this.commands.set(name, instance);
+	public append(...commands: CommandConstructor[]): this {
+		if (commands.length < 1) {
+			return createError('Не переданы команды для регистрации');
+		}
+		commands.forEach((Constructor) => {
+			this.registration(Constructor);
 		});
 		return this;
 	}
 
 	/**
-	 * Функция запуска команд
+	 * Регистрация команды
+	 *
+	 * @param {CommandConstructor} Constructor - конструктор команды
+	 * @returns {void}
+	 */
+	private registration(Constructor): void {
+		if (typeof Constructor !== 'function') {
+			return createError('Команда не является функцией котсруктором');
+		}
+		const instance = new Constructor();
+
+		if (!(instance instanceof Command)) {
+			return createError('Команда не является инстансом базового класса `Command`');
+		}
+
+		const instancePrivate = instance as unknown as CommandPrivate;
+
+		if (typeof instancePrivate.signature !== 'string') {
+			return createError('Отсутствует сигнатура команды');
+		}
+
+		const [name, definitions] = parser(instancePrivate.signature);
+
+		instancePrivate.commandName = name;
+		instancePrivate.definitions = definitions;
+		this.commands.set(name, instancePrivate);
+	}
+
+	/**
+	 * Запуск команд
+	 *
+	 * @returns {Promise<void>}
 	 */
 	public start(): Promise<void> {
 		return new Promise((resolve, reject) => {
@@ -54,7 +79,7 @@ export class Commander {
 					}
 				];
 
-				const mainCommand: CommandLineOptions & { name?: string; } = commandLineArgs(mainDefinitions, {
+				const mainCommand: CommandLineOptions & { name?: string } = commandLineArgs(mainDefinitions, {
 					stopAtFirstUnknown: true
 				});
 
@@ -65,29 +90,30 @@ export class Commander {
 							resolve();
 							break;
 						case mainCommand.help:
-							this.help();
+							this.printHelp();
 							resolve();
 							break;
 						default:
-
+							reject(new Error('Введите имя команды'));
 							break;
 					}
-					reject(new Error('Enter the name of the command'));
 				}
 				if (!mainCommand.name || !this.commands.has(mainCommand.name)) {
-					reject(new Error(`${mainCommand.name} command not found among registered commands`));
+					createError(`Команда с именем '${bold(mainCommand.name)}' не зарегистриванная`);
 				}
 
-				const command = this.commands.get(mainCommand.name as string) as CommandPrivateApi;
-				const argv = new Set(process.argv.slice(3));
+				const command = this.commands.get(mainCommand.name as string) as CommandPrivate;
+
+				if (typeof command.handle !== 'function') {
+					createError('Отсутствует реализация метода дескриптора');
+				}
+
+				const argv = process.argv.slice(3);
 
 				// eslint-disable-next-line no-underscore-dangle
-				[...(mainCommand._unknown ?? [])].forEach((value) => argv.add(value));
+				[...(mainCommand._unknown ?? [])].forEach((value) => argv.push(value));
 
-				command.parseOption({} as CommandLineOptions, Array.from(argv));
-				if (typeof command.handle !== 'function') {
-					throw new Error('Missing implementation of the handle method');
-				}
+				command.parseOption({} as CommandLineOptions, argv);
 
 				switch (true) {
 					case command.options.help:
@@ -112,12 +138,13 @@ export class Commander {
 	/**
 	 * Получение списка доступных команд
 	 *
-	 * @returns {CommandDescription[]}
+	 * @private
+	 * @returns {CommandDescription[]} - список команд и их описания
 	 */
 	private getListCommand(): CommandDescription[] {
-		return [...this.commands.entries()].map(([name, instance]) => ({
-			name,
-			summary: instance.description
+		return Array.from<CommandPrivate>(this.commands.values()).map((command) => ({
+			name: command.commandName,
+			summary: command.description
 		}));
 	}
 
@@ -133,33 +160,36 @@ export class Commander {
 	}
 
 	/**
-	 *Вывод справки
+	 * Вывод справки
+	 *
+	 * @private
+	 * @returns {void}
 	 */
-	private help(): void {
+	private printHelp(): void {
 		const sections = [
 			{
-				header: 'Commander options',
+				header: 'Опции менеджера',
 				optionList: [
 					{
 						name: 'help',
-						description: 'Show the user manual',
+						description: 'Вывод справки',
 						alias: 'H',
 						type: Boolean
 					},
 					{
 						name: 'list',
-						description: 'Displays a list of available commands',
+						description: 'Вывод на экран списка команд',
 						alias: 'L',
 						type: Boolean
 					}
 				]
 			},
 			{
-				header: 'Synopsis',
+				header: 'Пример',
 				content: '$ example <command> <options>'
 			},
 			{
-				header: 'Available commands',
+				header: 'Доступные команды',
 				content: this.getListCommand()
 			}
 		];

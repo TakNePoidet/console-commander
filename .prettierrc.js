@@ -1,6 +1,3 @@
-/** @format */
-
 module.exports = {
-	...require('taknepoidet-prettier-config'),
-	embeddedLanguageFormatting: 'auto'
+	...require('@taknepoidet-config/prettier')
 };
