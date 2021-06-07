@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="prettier" type="js.build_tools.npm" nameIsGenerated="true">
+  <configuration default="false" name="Тестирование" type="js.build_tools.npm">
     <package-json value="$PROJECT_DIR$/package.json" />
     <command value="run" />
     <scripts>
-      <script value="prettier" />
+      <script value="test" />
     </scripts>
     <node-interpreter value="wsl://Ubuntu-20.04@/usr/bin/node" />
     <envs />
